@@ -11,8 +11,10 @@ const App = () => {
 	const [activePanel, setActivePanel] = useState('home');
 	const [fetchedUser, setUser] = useState(null);
 	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
+	const [friends, setFriends] = useState(null)
 
 	useEffect(() => {
+
 		bridge.subscribe(({ detail: { type, data }}) => {
 			if (type === 'VKWebAppUpdateConfig') {
 				const schemeAttribute = document.createAttribute('scheme');
@@ -22,6 +24,24 @@ const App = () => {
 		});
 		async function fetchData() {
 			const user = await bridge.send('VKWebAppGetUserInfo');
+
+			let params = new URLSearchParams(window.location.search)
+			console.log(window.location.search)
+			const token = await bridge.send('VKWebAppGetAuthToken', {
+				app_id: parseInt(params.get("vk_app_id"), 10),
+				scope: "friends,status"
+			});
+
+			const friends = await bridge.send('VKWebAppCallAPIMethod', {
+				"method": "friends.get",
+				"params": {
+					"access_token": token.access_token,
+					"v": "5.22",
+					"fields": "nickname,photo_100,sex,bdate,domain",
+					"lang": "ru"
+				}
+			})
+			setFriends(friends.items)
 			setUser(user);
 			setPopout(null);
 		}
