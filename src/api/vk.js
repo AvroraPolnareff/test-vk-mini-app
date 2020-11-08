@@ -6,6 +6,7 @@ export async function fetchFriends(token, userId, fields) {
     "method": "friends.get",
     "params": {
       "access_token": token.access_token,
+      "user_id": userId,
       "v": "5.22",
       "fields": fields.toString(),
       "lang": "ru"
@@ -18,9 +19,25 @@ export function getAppId() {
   let params = new URLSearchParams(window.location.search)
   return parseInt(params.get("vk_app_id"), 10)
 }
+const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time))
 
-async function fetchFriendsAndFriendOfFriends(count, token, userId) {
-
+export async function fetchClosePeoples(count, token, userId, fields) {
+  let id = userId
+  let i = 0
+  let peoples = []
+  while (peoples.length < count) {
+    try {
+      const friends = await fetchFriends(token, id, fields)
+      peoples.push(...friends)
+    } catch (e) {
+      console.log(e)
+    }
+    await sleep(200)
+    console.log(peoples, userId, i)
+    id = peoples[i].id
+    i++
+  }
+  return peoples
 }
 
 export async function fetchToken(appId, scope) {

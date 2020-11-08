@@ -1,15 +1,8 @@
-import React, {useState} from 'react'
-import {Avatar, Cell, Group, List, Panel} from "@vkontakte/vkui";
-import Search from "@vkontakte/vkui/src/components/Search/Search";
+import React, {useMemo, useState} from 'react'
+import {Avatar, Cell, Group, List, Panel, Search} from "@vkontakte/vkui";
 
 export const Friends = ({id, friends}) => {
   const [value, setValue] = useState("")
-
-  const displayedFriends = useMemo(() => {
-    const processedFriends = friends.map(({first_name, last_name, bdate, sex}) => ({
-
-    }))
-  })
 
   const getAge = (friend) => {
     if (!friend.bdate) return ""
@@ -25,15 +18,33 @@ export const Friends = ({id, friends}) => {
     }
   }
 
-  const getDescription = (friend) => {
-    let sex
-    if (friend.sex === 1) sex = "Женщина"
-    else if (friend.sex === 2) sex = "Мужчина"
-    else sex = ""
-
-    const age = getAge(friend)
-    return `${sex} ${age ? `, ${age}` : ""}`
+  const getSex = (friend) => {
+    if (friend.sex === 1) return  "Женщина"
+    else if (friend.sex === 2) return "Мужчина"
+    else return ""
   }
+
+  const getDescription = (friend) => {
+    const age = getAge(friend)
+    return `${getSex(friend)}${age ? `, ${age}` : ""}`
+  }
+
+  const displayedFriends = useMemo(() => {
+    const processedFriends = friends.map((friend) => ({
+      first_name: friend.first_name,
+      last_name: friend.last_name,
+      age: getAge(friend),
+      sex: getSex(friend),
+      photo_100: friend.photo_100,
+      description: getDescription(friend)
+    }))
+    if (!value) return processedFriends
+    else {
+      return processedFriends
+    }
+  })
+
+
 
   const handleChange = (e) => {
     setValue(value)
@@ -44,10 +55,10 @@ export const Friends = ({id, friends}) => {
       <Search value={value} onChange={handleChange}/>
       <Group>
         <List>
-          {friends && friends.map((friend) => (
+          {displayedFriends && displayedFriends.map((friend) => (
             <Cell
               before={<Avatar src={friend.photo_100}/>}
-              description={getDescription(friend)}
+              description={friend.description}
             >
               {`${friend.first_name} ${friend.last_name}`}
             </Cell>

@@ -6,7 +6,7 @@ import '@vkontakte/vkui/dist/vkui.css';
 
 import Home from './panels/Home';
 import Persik from './panels/Persik';
-import {fetchFriends, fetchToken, getAppId} from "./api/vk";
+import {fetchClosePeoples, fetchFriends, fetchToken, getAppId} from "./api/vk";
 import {Friends} from "./panels/Friends";
 
 const App = () => {
@@ -29,7 +29,8 @@ const App = () => {
       const user = await bridge.send('VKWebAppGetUserInfo');
 
       const token = await fetchToken(getAppId(), "friends")
-      const friends = await fetchFriends(
+      const friends = await fetchClosePeoples(
+        10000,
         token,
         user.id,
         ["nickname", "photo_100", "sex", "bdate", "domain"]
