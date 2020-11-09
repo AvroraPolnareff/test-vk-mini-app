@@ -26,7 +26,7 @@ const Home = ({ id, go, fetchedUser }) => (
 				<Button size="xl" level="2" onClick={go} data-to="persik">
 					Show me the Persik, please
 				</Button>
-				<Button size="xl" level="2" onClick={go} data-to="friends">
+				<Button  style={{marginTop: "1em"}} size="xl" level="2" onClick={go} data-to="friends">
 					To Friends List
 				</Button>
 			</Div>

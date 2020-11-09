@@ -17,7 +17,7 @@ import {
   FormLayout,
   FormLayoutGroup,
   Input, Button,
-  Div, PanelHeaderButton
+  Div, PanelHeaderButton, platform, IOS
 } from "@vkontakte/vkui";
 import {getFriendsIterable} from "../api/vk";
 import InfiniteScroll from "react-infinite-scroller";
@@ -29,9 +29,12 @@ import {parseVkDate} from "../utils/helpers";
 import {changeFilters, resetFilters} from "../store/friendsFiltersSlice";
 import _ from 'lodash'
 import useInfiniteScroll from "react-infinite-scroll-hook";
+import Icon28ChevronBack from "@vkontakte/icons/dist/28/chevron_back";
+import Icon24Back from "@vkontakte/icons/dist/24/back";
 
+const osName = platform();
 
-export const Friends = ({id, user}) => {
+export const Friends = ({id, user, go}) => {
   const [value, setValue] = useState("")
   const [loading, setLoading] = useState(false)
   const [closePeoples, setClosePeoples] = useState([])
@@ -111,7 +114,9 @@ export const Friends = ({id, user}) => {
   return (
     <Panel id={id}>
       <PanelHeader
-        left={<PanelHeaderBack/>}
+        left={<PanelHeaderButton onClick={go} data-to="home">
+          {osName === IOS ? <Icon28ChevronBack/> : <Icon24Back/>}
+        </PanelHeaderButton>}
       >Пользователи</PanelHeader>
       <FixedLayout vertical={"top"}>
         <Search
