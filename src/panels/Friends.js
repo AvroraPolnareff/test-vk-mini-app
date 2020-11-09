@@ -28,7 +28,6 @@ import {closeModal, Modals, showModal} from "../store/modalsSlice";
 import {parseVkDate} from "../utils/helpers";
 import {changeFilters, resetFilters} from "../store/friendsFiltersSlice";
 import _ from 'lodash'
-import useInfiniteScroll from "react-infinite-scroll-hook";
 import Icon28ChevronBack from "@vkontakte/icons/dist/28/chevron_back";
 import Icon24Back from "@vkontakte/icons/dist/24/back";
 
@@ -58,13 +57,6 @@ export const Friends = ({id, user, go}) => {
   }
 
   const debounceFetch = useRef(_.debounce(fetchMoreData, 1000))
-
-  const infiniteRef = useInfiniteScroll({
-    hasNextPage: hasMore,
-    onLoadMore: debounceFetch,
-    loading: loading,
-    scrollContainer: "parent"
-  })
 
   useEffect(() => {
     iterableFetch.current = getFriendsIterable(user.id, 2000, {q: value,...filtersState})
