@@ -56,7 +56,7 @@ export const Friends = ({id, user, go}) => {
       })
   }
 
-  const debounceFetch = useRef(_.debounce(fetchMoreData, 1000))
+  const debounceFetch = useRef(_.debounce(fetchMoreData, 500))
 
   useEffect(() => {
     iterableFetch.current = getFriendsIterable(user.id, 2000, {q: value,...filtersState})
@@ -156,11 +156,11 @@ export const FiltersModal = ({id}) => {
   }
 
   const onAgeChange = (e) => {
-    dispatch(changeFilters({age: e.target.value}))
+    dispatch(changeFilters({age: parseInt(e.target.value)}))
   }
 
   const onSexChange = (e) => {
-    dispatch(changeFilters({sex: e.target.value}))
+    dispatch(changeFilters({sex: parseInt(e.target.value, 10)}))
   }
 
   return (

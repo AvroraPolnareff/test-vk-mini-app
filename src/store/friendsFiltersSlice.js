@@ -2,7 +2,7 @@ import {createSlice} from "@reduxjs/toolkit";
 
 export const initState = {
   sex: 0,
-  age: 0,
+  age: "",
 }
 
 const friendsFiltersSlice = createSlice({

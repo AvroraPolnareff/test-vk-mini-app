@@ -66,6 +66,7 @@ export async function* getFriendsIterable(userId, totalCount, searchOptions) {
   let users = []
   let searchResults = []
   let searchMode = false
+
   while (users.length < totalCount || offset >= users.length) {
     const foundFriends = await getFriendsForUsers(ids, fields, token)
     if (foundFriends.response.length) {
@@ -78,13 +79,13 @@ export async function* getFriendsIterable(userId, totalCount, searchOptions) {
         yield searchResults
       }
 
-      if (users.length > 20 && !searchMode) {
+      if (!searchMode) {
         yield users
       }
     }
     await sleep(300)
     offset += ids.length
-    ids = users.slice(offset, offset + 4).map(user => user.id)
+    ids = users.slice(offset, offset + 10).map(user => user.id)
   }
   if (searchMode) {
     return searchResults
@@ -102,12 +103,12 @@ function filterUsers(users, searchOptions) {
   if (searchOptions) {
     if (searchOptions.q) {
       filtered = filtered.filter(({first_name, last_name}) => (
-        (first_name + " " + last_name).indexOf(searchOptions.q) !== -1
+        (first_name + " " + last_name).toLowerCase().indexOf(searchOptions.q.toLowerCase()) !== -1
       ))
     }
     if (searchOptions.age) {
       filtered = filtered.filter((({bdate}) =>
-          parseInt(parseVkDate(bdate), 10) === searchOptions.age
+          bdate && parseInt(parseVkDate(bdate), 10) === searchOptions.age
       ))
     }
     if (searchOptions.sex) {
