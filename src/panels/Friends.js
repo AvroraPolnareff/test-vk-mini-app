@@ -20,7 +20,7 @@ import {
   Div, PanelHeaderButton
 } from "@vkontakte/vkui";
 import {getFriendsIterable} from "../api/vk";
-import InfiniteScroll from "react-infinite-scroll-component";
+import InfiniteScroll from "react-infinite-scroller";
 import Icon24Filter from '@vkontakte/icons/dist/24/filter';
 import Icon24Cancel from '@vkontakte/icons/dist/24/cancel';
 import {useDispatch, useSelector} from "react-redux";
@@ -28,21 +28,25 @@ import {closeModal, Modals, showModal} from "../store/modalsSlice";
 import {parseVkDate} from "../utils/helpers";
 import {changeFilters, resetFilters} from "../store/friendsFiltersSlice";
 import _ from 'lodash'
+import useInfiniteScroll from "react-infinite-scroll-hook";
 
 
 export const Friends = ({id, user}) => {
   const [value, setValue] = useState("")
+  const [loading, setLoading] = useState(false)
   const [closePeoples, setClosePeoples] = useState([])
   const [hasMore, setHasMore] = useState(true)
   const dispatch = useDispatch()
   const filtersState = useSelector(state => state.friendsFilters)
 
+
   const iterableFetch = useRef(getFriendsIterable(user.id, 2000, {q: value,...filtersState}))
 
   const fetchMoreData = () => {
+    setLoading(true)
     iterableFetch.current.next()
       .then(newFriends => {
-        console.log(newFriends.done)
+        setLoading(false)
         setHasMore(!newFriends.done)
         if (!newFriends.done) {
           setClosePeoples(newFriends.value)
@@ -52,9 +56,16 @@ export const Friends = ({id, user}) => {
 
   const debounceFetch = useRef(_.debounce(fetchMoreData, 1000))
 
+  const infiniteRef = useInfiniteScroll({
+    hasNextPage: hasMore,
+    onLoadMore: debounceFetch,
+    loading: loading,
+    scrollContainer: "parent"
+  })
+
   useEffect(() => {
     iterableFetch.current = getFriendsIterable(user.id, 2000, {q: value,...filtersState})
-    fetchMoreData()
+    debounceFetch.current()
   }, [value, user, filtersState])
 
   const getAge = (friend) => {
@@ -94,7 +105,6 @@ export const Friends = ({id, user}) => {
   }
 
   const onFiltersButtonClick = () => {
-    console.log("lol")
     dispatch(showModal(Modals.FRIENDS_FILTERS))
   }
 
@@ -113,12 +123,11 @@ export const Friends = ({id, user}) => {
 
       </FixedLayout>
       <Group style={{paddingTop: "60px"}}>
-        <List>
+        <List ref={infiniteRef}>
           <InfiniteScroll
-            next={debounceFetch}
+            loadMore={debounceFetch.current}
             hasMore={hasMore}
             loader={<Cell><Spinner/></Cell>}
-            dataLength={closePeoples.length}
           >
             {displayedFriends && displayedFriends.map((friend) => (
               <Cell
@@ -129,7 +138,7 @@ export const Friends = ({id, user}) => {
                 {`${friend.first_name} ${friend.last_name}`}
               </Cell>
             ))}
-          </InfiniteScroll>
+            </InfiniteScroll>
         </List>
       </Group>
     </Panel>

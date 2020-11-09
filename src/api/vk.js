@@ -68,18 +68,14 @@ export async function* getFriendsIterable(userId, totalCount, searchOptions) {
   let searchMode = false
   while (users.length < totalCount || offset >= users.length) {
     const foundFriends = await getFriendsForUsers(ids, fields, token)
-    console.log(users, ids, offset, foundFriends, searchOptions)
     if (foundFriends.response.length) {
       let filtered = filterNotActiveUsers(foundFriends.response)
       users = _.unionBy(users, filtered, 'id')
 
       if (searchOptions && isOptionsSetted(searchOptions)) {
-
         searchMode = true
         searchResults = filterUsers(users, searchOptions)
-        console.log("searchResults", searchResults)
-          console.log("lalka")
-          yield searchResults
+        yield searchResults
       }
 
       if (users.length > 20 && !searchMode) {
